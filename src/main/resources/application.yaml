@@ -16,13 +16,31 @@ spring:
     secretKey: asdasdasdasdasd123344asdasdasdasdasasd12321332sadas
     tokenPrefix: Bearer
     tokenExpirationAfterDays: 7
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: globaldevelopmentfuture@gmail.com
+    password: ahmrurphyuxgibfx
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 server:
   error:
     include-binding-errors: always
     include-message: always
+
+
 
 springdoc:
   swagger-ui:
     enabled: true
   api-docs:
     enabled: true
+
+app:
+  base:
+    url: http://localhost:3000
