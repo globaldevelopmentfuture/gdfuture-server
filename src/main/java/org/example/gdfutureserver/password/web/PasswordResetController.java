@@ -25,7 +25,7 @@ public class PasswordResetController {
         return ResponseEntity.ok(passwordResetTokenQueryService.isTokenValidOrExpired(token));
     }
     @PostMapping("/password-reset-request/{email}")
-    public ResponseEntity<?> requestReset(@PathVariable String email) {
+    public ResponseEntity<String> requestReset(@PathVariable String email) {
         passwordResetService.resetPasswordRequest(email);
         return ResponseEntity.ok("Daca exista un cont asociat acestei adrese, vei primi un email de resetare.");
     }
