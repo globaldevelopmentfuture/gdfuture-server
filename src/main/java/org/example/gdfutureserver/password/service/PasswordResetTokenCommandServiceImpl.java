@@ -34,18 +34,29 @@ public class PasswordResetTokenCommandServiceImpl implements PasswordResetTokenC
             throw new NoUserFound("User not found");
         }
 
+        User foundUser = user.get();
+        Optional<PasswordResetToken> existingTokenOpt = passwordResetTokenRepository.findByUser(foundUser);
         String tokenGenerated = UUID.randomUUID().toString();
         LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(10);
-        PasswordResetToken passwordResetToken = PasswordResetToken.builder()
-                .token(tokenGenerated)
-                .user(user.get())
-                .expiryDate(expiryDate)
-                .build();
-        passwordResetTokenRepository.save(passwordResetToken);
+
+        if (existingTokenOpt.isPresent()) {
+            PasswordResetToken existingToken = existingTokenOpt.get();
+            existingToken.setToken(tokenGenerated);
+            existingToken.setExpiryDate(expiryDate);
+            passwordResetTokenRepository.save(existingToken);
+        } else {
+            PasswordResetToken passwordResetToken = PasswordResetToken.builder()
+                    .token(tokenGenerated)
+                    .user(foundUser)
+                    .expiryDate(expiryDate)
+                    .build();
+            passwordResetTokenRepository.save(passwordResetToken);
+        }
 
         String resetLink = baseUrl + "/password-reset?token=" + tokenGenerated;
-        emailCommandService.sendEmailResetPassword(email,resetLink);
+        emailCommandService.sendEmailResetPassword(email, resetLink);
     }
+
 
     @Override
     public void resetPassword(String token, String newPassword) {
@@ -58,7 +69,7 @@ public class PasswordResetTokenCommandServiceImpl implements PasswordResetTokenC
         }
         User user = passwordResetToken.get().getUser();
         user.setPassword(newPassword);
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
         passwordResetTokenRepository.delete(passwordResetToken.get());
     }
 }
