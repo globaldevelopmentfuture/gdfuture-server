@@ -33,7 +33,12 @@ server:
     include-binding-errors: always
     include-message: always
 
-
+cloudflare:
+  r2:
+    endpoint: "https://59714e0c03cca5e1ffc8f27e9c10a008.r2.cloudflarestorage.com"
+    bucket: "gdfuture"
+    access-key: "c4075cfcbbeba88a5bb00fb637fb1776"
+    secret-key: "a1158fee0fb8064d3fa1c9dfb91702121fc40779aafb5b72dd6ebe8f4c7b671e"
 
 springdoc:
   swagger-ui:

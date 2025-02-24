@@ -1,10 +1,7 @@
 package org.example.gdfutureserver.projects.dto;
 
-
 import lombok.Data;
 import org.example.gdfutureserver.projects.enums.ProjectType;
-import org.example.gdfutureserver.projects.model.Technology;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,6 +17,5 @@ public class ProjectResponseDTO {
     private LocalDate deadline;
     private Integer teamSize;
     private ProjectType type;
-    private List<Technology> technologies;
+    private List<String> technologies;
 }
-

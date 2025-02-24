@@ -25,9 +25,10 @@ public class ImageFile {
     private Long id;
 
     @Column(nullable = false)
+    private String fileName;
+
+    @Column(nullable = false)
     private String url;
 
-    @Lob
-    @Column(name = "data", nullable = false)
-    private byte[] data;
+
 }

@@ -1,5 +1,6 @@
 package org.example.gdfutureserver.projects.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.gdfutureserver.image.model.ImageFile;
@@ -17,15 +18,8 @@ import java.util.List;
 public class Project {
 
     @Id
-    @SequenceGenerator(
-            name = "project_sequence",
-            sequenceName = "project_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "project_sequence"
-    )
+    @SequenceGenerator(name = "project_sequence", sequenceName = "project_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "project_sequence")
     private Long id;
 
     @Column(nullable = false)
@@ -57,9 +51,10 @@ public class Project {
     @Column(nullable = false)
     private ProjectType type;
 
-
     @ElementCollection
     @CollectionTable(name = "project_technologies", joinColumns = @JoinColumn(name = "project_id"))
-    private List<Technology> technologies;
+    @Column(name = "technology")
+    private List<String> technologies;
+
 }
 

@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ImageFileRepo extends JpaRepository<ImageFile, Long> {
+    ImageFile findByFileName(String fileName);
 }
 
