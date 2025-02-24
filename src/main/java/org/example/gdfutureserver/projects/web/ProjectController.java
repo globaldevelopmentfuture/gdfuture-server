@@ -1,7 +1,6 @@
 package org.example.gdfutureserver.projects.web;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.gdfutureserver.projects.dto.ProjectRequestDTO;
 import org.example.gdfutureserver.projects.dto.ProjectResponseDTO;
 import org.example.gdfutureserver.projects.service.ProjectCommandService;
@@ -25,10 +24,6 @@ public class ProjectController {
         this.projectQueryService = projectQueryService;
     }
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello from ProjectController";
-    }
 
 
     @PostMapping(value="/create",consumes = {"multipart/form-data"})
