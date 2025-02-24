@@ -8,6 +8,7 @@ import org.example.gdfutureserver.password.exception.TokenExpiredException;
 import org.example.gdfutureserver.password.exception.TokenNotFoundException;
 import org.example.gdfutureserver.users.exceptions.NoUserFound;
 import org.example.gdfutureserver.users.exceptions.UserAlreadyExists;
+import org.example.gdfutureserver.users.exceptions.UserNoAcces;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -28,6 +29,18 @@ public class GlobalExceptionsHandler {
         private String error;
         private String message;
         private String path;
+    }
+
+    @ExceptionHandler(UserNoAcces.class)
+    public ResponseEntity<ApiError> handleUserNoAcces(UserNoAcces ex, WebRequest request) {
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", "")
+        );
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(NoUserFound.class)

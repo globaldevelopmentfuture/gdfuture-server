@@ -1,9 +1,17 @@
 package org.example.gdfutureserver.users.dtos;
 
-import jakarta.validation.constraints.NotNull;
+import org.example.gdfutureserver.users.enums.TeamPosition;
 
-public record UpdateUserRequest(@NotNull String fullName,
-                                @NotNull String email,
-                                @NotNull String password,
-                                @NotNull String phone) {
+import java.util.Set;
+
+public record UpdateUserRequest(
+        String fullName,
+        String phone,
+        String email,
+        String password,
+        String location,
+        String experience,
+        TeamPosition teamPosition,
+        Set<String> skills
+) {
 }

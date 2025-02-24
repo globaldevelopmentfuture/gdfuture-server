@@ -7,6 +7,8 @@ import org.example.gdfutureserver.password.exception.TokenExpiredException;
 import org.example.gdfutureserver.password.exception.TokenNotFoundException;
 import org.example.gdfutureserver.password.model.PasswordResetToken;
 import org.example.gdfutureserver.password.repository.PasswordResetTokenRepository;
+import org.example.gdfutureserver.system.security.UserRole;
+import org.example.gdfutureserver.users.exceptions.UserNoAcces;
 import org.example.gdfutureserver.users.model.User;
 import org.example.gdfutureserver.users.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +34,10 @@ public class PasswordResetTokenCommandServiceImpl implements PasswordResetTokenC
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isEmpty()) {
             throw new NoUserFound("User not found");
+        }
+
+        if(!user.get().getUserRole().equals(UserRole.ADMIN)){
+            throw new UserNoAcces("User cannot reset password");
         }
 
         User foundUser = user.get();

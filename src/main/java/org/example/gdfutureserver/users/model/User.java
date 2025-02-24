@@ -3,13 +3,16 @@ package org.example.gdfutureserver.users.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.gdfutureserver.image.model.ImageFile;
 import org.example.gdfutureserver.system.security.UserRole;
+import org.example.gdfutureserver.users.enums.TeamPosition;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Set;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
@@ -74,6 +77,24 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
+    @Column(name = "location")
+    private String location;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_id")
+    private ImageFile avatar;
+
+    @Column(name = "experience")
+    private String experience;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "team_position")
+    private TeamPosition teamPosition;
+
+    @ElementCollection
+    @CollectionTable(name = "user_skills", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "skill")
+    private Set<String> skills = new java.util.HashSet<>();
 
 
     public User(Long id, String fullName, String phoneNumber, String email, String password, UserRole userRole, LocalDateTime registeredAt, LocalDateTime createdAt, boolean active) {
