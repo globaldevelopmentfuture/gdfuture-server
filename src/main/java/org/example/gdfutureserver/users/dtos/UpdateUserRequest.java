@@ -7,10 +7,17 @@ import java.util.Set;
 public record UpdateUserRequest(
         String fullName,
         String phone,
+
+        String description,
         String email,
         String password,
         String location,
-        String experience,
+
+        String github,
+
+        String linkedin,
+
+        
         TeamPosition teamPosition,
         Set<String> skills
 ) {

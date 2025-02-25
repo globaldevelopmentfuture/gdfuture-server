@@ -28,6 +28,10 @@ spring:
           auth: true
           starttls:
             enable: true
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
 server:
   error:
     include-binding-errors: always
@@ -45,6 +49,7 @@ springdoc:
     enabled: true
   api-docs:
     enabled: true
+
 
 app:
   base:

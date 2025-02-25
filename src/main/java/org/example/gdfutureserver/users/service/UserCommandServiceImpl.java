@@ -9,6 +9,7 @@ import org.example.gdfutureserver.users.dtos.UpdateUserRequest;
 import org.example.gdfutureserver.users.dtos.UserResponse;
 import org.example.gdfutureserver.users.exceptions.NoUserFound;
 import org.example.gdfutureserver.users.exceptions.UserAlreadyExists;
+import org.example.gdfutureserver.users.exceptions.UserNoAcces;
 import org.example.gdfutureserver.users.mapper.UserMapper;
 import org.example.gdfutureserver.users.model.User;
 import org.example.gdfutureserver.users.repository.UserRepository;
@@ -30,25 +31,21 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     public UserResponse createUser(CreateUserRequest request, MultipartFile avatarFile) throws Exception {
+
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            throw new UserAlreadyExists("User with this email already exists");
+        }
+
         User user = User.builder()
                 .fullName(request.fullName())
                 .phone(request.phone())
                 .email(request.email())
                 .userRole(UserRole.UTILIZATOR)
                 .location(request.location())
-                .experience(request.experience())
                 .teamPosition(request.teamPosition())
+                .password(passwordEncoder.encode(request.password()))
                 .skills(request.skills())
                 .build();
-
-        List<User> existingUsers = userRepository.findAll();
-        existingUsers.forEach(u -> {
-            if (user.getEmail().equalsIgnoreCase(u.getEmail())) {
-                throw new UserAlreadyExists("User with this email already exists");
-            }
-        });
-
-        user.setPassword(null);
 
         if (avatarFile != null && !avatarFile.isEmpty()) {
             ImageFile uploadedImage = imageCommandService.uploadImage(avatarFile);
@@ -60,61 +57,54 @@ public class UserCommandServiceImpl implements UserCommandService {
     }
 
     @Override
-    public UserResponse updateUser(Long id, UpdateUserRequest request, MultipartFile avatarFile) throws Exception {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoUserFound("No user with id = " + id + " found"));
+    public UserResponse updateUser(String email, UpdateUserRequest request, MultipartFile avatarFile) throws Exception {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoUserFound("No user found with email: " + email));
 
-        List<User> allUsers = userRepository.findAll();
-        allUsers.remove(user);
-        allUsers.forEach(u -> {
-            if (request.email().equalsIgnoreCase(u.getEmail())) {
-                throw new UserAlreadyExists("User with this email already exists");
-            }
-        });
+        if (!user.getEmail().equalsIgnoreCase(request.email()) &&
+                userRepository.existsByEmail(request.email())) {
+            throw new UserAlreadyExists("Another user with this email already exists");
+        }
 
         user.setFullName(request.fullName());
         user.setPhone(request.phone());
+        user.setDescription(request.description());
         user.setEmail(request.email());
         user.setLocation(request.location());
-        user.setExperience(request.experience());
+        user.setGithub(request.github());
+        user.setLinkedin(request.linkedin());
         user.setTeamPosition(request.teamPosition());
         user.setSkills(request.skills());
 
-        if (user.getUserRole() == UserRole.ADMIN && request.password() != null && !request.password().isEmpty()) {
+        if (request.password() != null && !request.password().isEmpty()) {
             user.setPassword(passwordEncoder.encode(request.password()));
-        } else if (user.getUserRole() == UserRole.UTILIZATOR) {
-            user.setPassword(null);
         }
 
         if (avatarFile != null && !avatarFile.isEmpty()) {
-            if (user.getAvatar() != null) {
-                ImageFile updatedImage = imageCommandService.updateImage(user.getAvatar(), avatarFile);
-                user.setAvatar(updatedImage);
-            } else {
-                ImageFile newImage = imageCommandService.uploadImage(avatarFile);
-                user.setAvatar(newImage);
-            }
+            ImageFile updatedImage = (user.getAvatar() != null) ?
+                    imageCommandService.updateImage(user.getAvatar(), avatarFile) :
+                    imageCommandService.uploadImage(avatarFile);
+            user.setAvatar(updatedImage);
         }
 
         userRepository.save(user);
+
         return UserMapper.userToResponseDto(user);
     }
 
+
     @Override
-    public UserResponse deleteUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoUserFound("No user with id = " + id + " found"));
-
+    public String  deleteUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoUserFound("No user found with email: " + email));
         if (user.getUserRole() == UserRole.ADMIN) {
-            throw new RuntimeException("Cannot delete the only admin user");
+            throw new UserNoAcces("Admin cannot be deleted.");
         }
-
         if (user.getAvatar() != null) {
             imageCommandService.deleteImage(user.getAvatar());
         }
-
-        UserResponse response = UserMapper.userToResponseDto(user);
         userRepository.delete(user);
-        return response;
+
+        return "User with email : "+email+" was deleted";
     }
 }

@@ -7,7 +7,6 @@ import org.example.gdfutureserver.users.model.User;
 
 public interface UserQueryService {
 
-    UserResponse findUserById(long id);
 
     UserResponseList getAllUsers();
 

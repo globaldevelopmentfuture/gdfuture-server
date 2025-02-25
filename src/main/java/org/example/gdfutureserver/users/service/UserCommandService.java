@@ -7,6 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface UserCommandService {
     UserResponse createUser(CreateUserRequest request, MultipartFile avatarFile) throws Exception;
-    UserResponse updateUser(Long id, UpdateUserRequest request, MultipartFile avatarFile) throws Exception;
-    UserResponse deleteUser(Long id);
+    UserResponse updateUser(String email, UpdateUserRequest request, MultipartFile avatarFile) throws Exception;
+    String  deleteUser(String email);
 }

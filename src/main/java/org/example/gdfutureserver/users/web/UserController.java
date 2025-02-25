@@ -1,5 +1,6 @@
 package org.example.gdfutureserver.users.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.gdfutureserver.image.model.ImageFile;
@@ -53,10 +54,12 @@ public class UserController {
                 loginUser.getId(),
                 loginUser.getFullName(),
                 loginUser.getPhone(),
+                loginUser.getDescription(),
                 loginUser.getEmail(),
                 loginUser.getUserRole(),
                 loginUser.getLocation(),
-                loginUser.getExperience(),
+                loginUser.getGithub(),
+                loginUser.getLinkedin(),
                 Optional.ofNullable(loginUser.getAvatar()).map(ImageFile::getUrl).orElse(null),
                 loginUser.getTeamPosition(),
                 loginUser.getSkills() == null ? Set.of() : loginUser.getSkills()
@@ -65,39 +68,44 @@ public class UserController {
         return new ResponseEntity<>(loginResponse, jwtHeader, HttpStatus.OK);
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> createUser(
-            @RequestPart("user") CreateUserRequest request,
-            @RequestPart(value = "avatar", required = false) MultipartFile avatarFile
-    )  {
-        try {
-            UserResponse response = userCommandService.createUser(request, avatarFile);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-
-        } catch (Exception e) {
-           e.printStackTrace();
-              return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserResponse> updateUser(
-            @PathVariable Long id,
-            @RequestPart("user") UpdateUserRequest request,
+            @RequestPart("user") String userJson,
             @RequestPart(value = "avatar", required = false) MultipartFile avatarFile
     ) throws Exception {
-        UserResponse response = userCommandService.updateUser(id, request, avatarFile);
+        ObjectMapper objectMapper = new ObjectMapper();
+        CreateUserRequest request = objectMapper.readValue(userJson, CreateUserRequest.class);
+        UserResponse response = userCommandService.createUser(request, avatarFile);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping(value = "/update/{email}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable String email,
+            @RequestPart("user") String userJson,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatarFile
+    ) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UpdateUserRequest request = objectMapper.readValue(userJson, UpdateUserRequest.class);
+        UserResponse response = userCommandService.updateUser(email, request, avatarFile);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<UserResponse> deleteUser(@PathVariable Long id) {
-        UserResponse response = userCommandService.deleteUser(id);
+    @DeleteMapping("/delete/{email}")
+    public ResponseEntity<String> deleteUser(@PathVariable String email) {
+        String response = userCommandService.deleteUser(email);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<UserResponseList> getAllUsers() {
+        UserResponseList users = userQueryService.getAllUsers();
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     private void authenticate(String username, String password) {

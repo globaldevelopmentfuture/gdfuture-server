@@ -9,14 +9,17 @@ public class UserMapper {
                 user.getId(),
                 user.getFullName(),
                 user.getPhone(),
+                user.getDescription(),
                 user.getEmail(),
                 user.getUserRole(),
                 user.getLocation(),
-                user.getExperience(),
-                user.getAvatar().getUrl(),
+                user.getGithub(),
+                user.getLinkedin(),
+                user.getAvatar() != null ? user.getAvatar().getUrl() : null,
                 user.getTeamPosition(),
-                user.getSkills()
+                user.getSkills(),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
         );
     }
 }
-

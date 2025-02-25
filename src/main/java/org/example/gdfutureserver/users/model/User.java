@@ -1,6 +1,5 @@
 package org.example.gdfutureserver.users.model;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.gdfutureserver.image.model.ImageFile;
@@ -8,69 +7,41 @@ import org.example.gdfutureserver.system.security.UserRole;
 import org.example.gdfutureserver.users.enums.TeamPosition;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
-@AllArgsConstructor
-@ToString
-@NoArgsConstructor
 @Data
-@Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Table(name = "user")
 @Entity(name = "User")
 public class User implements UserDetails {
 
     @Id
-    @SequenceGenerator(
-            name = "user_sequence",
-            sequenceName = "user_sequence",
-            allocationSize = 1
-    )
-
-    @GeneratedValue(
-            strategy = SEQUENCE,
-            generator = "user_sequence"
-    )
-
-    @Column(
-            name = "id"
-    )
+    @SequenceGenerator(name = "user_sequence", sequenceName = "user_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = SEQUENCE, generator = "user_sequence")
+    @Column(name = "id")
     private long id;
 
-    @Column(
-            name = "email",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
+    @Column(name = "email", nullable = false, unique = true, columnDefinition = "TEXT")
     private String email;
 
-    @Column(
-            name = "password",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
+    @Column(name = "password", nullable = false, columnDefinition = "TEXT")
     private String password;
 
-    @Column(
-            name = "full_name",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
+    @Column(name = "full_name", nullable = false, columnDefinition = "TEXT")
     private String fullName;
 
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
 
-    @Column(
-            name = "phone",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
+    @Column(name = "phone", columnDefinition = "TEXT")
     private String phone;
 
     @Column(name = "role", nullable = false)
@@ -84,8 +55,11 @@ public class User implements UserDetails {
     @JoinColumn(name = "image_id")
     private ImageFile avatar;
 
-    @Column(name = "experience")
-    private String experience;
+    @Column(name = "github", columnDefinition = "TEXT")
+    private String github;
+
+    @Column(name = "linkedin", columnDefinition = "TEXT")
+    private String linkedin;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "team_position")
@@ -94,21 +68,22 @@ public class User implements UserDetails {
     @ElementCollection
     @CollectionTable(name = "user_skills", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "skill")
-    private Set<String> skills = new java.util.HashSet<>();
+    private Set<String> skills = new HashSet<>();
 
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
-    public User(Long id, String fullName, String phoneNumber, String email, String password, UserRole userRole, LocalDateTime registeredAt, LocalDateTime createdAt, boolean active) {
-        this.id = id;
-        this.fullName = fullName;
-        this.phone = phoneNumber;
-        this.email = email;
-        this.password = new BCryptPasswordEncoder().encode(password);
-        this.userRole = userRole;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
     }
 
-    public void setPassword(String password){
-        this.password= new BCryptPasswordEncoder().encode(password);
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
     @Override
@@ -117,7 +92,7 @@ public class User implements UserDetails {
     }
 
     @Override
-    public String getUsername(){
+    public String getUsername() {
         return this.email;
     }
 
@@ -140,5 +115,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }
