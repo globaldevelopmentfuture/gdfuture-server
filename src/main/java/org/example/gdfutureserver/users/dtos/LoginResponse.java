@@ -25,7 +25,11 @@ public record LoginResponse(
 
         @Nullable String avatar,
         @Nullable TeamPosition teamPosition,
-        @Nullable Set<String> skills
+        @Nullable Set<String> skills ,
+
+        LocalDateTime createdAt,
+
+        LocalDateTime updatedAt
 
 ) {
 }

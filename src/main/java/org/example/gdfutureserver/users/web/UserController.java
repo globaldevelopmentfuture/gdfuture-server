@@ -62,7 +62,9 @@ public class UserController {
                 loginUser.getLinkedin(),
                 Optional.ofNullable(loginUser.getAvatar()).map(ImageFile::getUrl).orElse(null),
                 loginUser.getTeamPosition(),
-                loginUser.getSkills() == null ? Set.of() : loginUser.getSkills()
+                loginUser.getSkills() == null ? Set.of() : loginUser.getSkills(),
+                loginUser.getCreatedAt(),
+                loginUser.getUpdatedAt()
         );
 
         return new ResponseEntity<>(loginResponse, jwtHeader, HttpStatus.OK);
